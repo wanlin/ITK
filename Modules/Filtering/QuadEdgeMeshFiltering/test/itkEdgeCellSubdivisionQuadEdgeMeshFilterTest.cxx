@@ -117,13 +117,6 @@ int itkEdgeCellSubdivisionQuadEdgeMeshFilterTest(int argc, char *argv[])
     InputMeshType::EdgeCellType * edge = dynamic_cast<InputMeshType::EdgeCellType *>(eter.Value());
     if( edge )
       {
-      /*
-      std::cout<<"num = "<<edge->GetNumberOfPoints()<<std::endl;
-      std::cout<<"ss = "<<edge->PointIdsBegin()[0]<<std::endl;
-      std::cout<<"tt = "<<edge->PointIdsBegin()[1]<<std::endl;
-      std::cout<<"source = "<<edge->GetOrigin()<<std::endl;
-      std::cout<<"target = "<<edge->GetDestination()<<std::endl;
-      */
       input->GetPoint(edge->PointIdsBegin()[0], &pointArray[0]);
       input->GetPoint(edge->PointIdsBegin()[1], &pointArray[1]);
       if(static_cast<double>(pointArray[1].SquaredEuclideanDistanceTo(pointArray[0])) > edgeLengthThreshold)

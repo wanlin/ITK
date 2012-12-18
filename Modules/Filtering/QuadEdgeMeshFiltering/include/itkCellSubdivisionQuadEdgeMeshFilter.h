@@ -98,7 +98,7 @@ protected:
 
   void SplitTriangleFromOneEdge( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
   void SplitTriangleFromTwoEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
-  void SplitTriangleFromThreeEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+  void SplitTriangleFromThreeEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds );
 
   void PrintSelf(std::ostream & os, Indent indent) const;
 

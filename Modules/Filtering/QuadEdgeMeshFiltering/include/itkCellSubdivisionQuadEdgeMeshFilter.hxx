@@ -136,65 +136,16 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       }
     else if( n == 1 )
       {
-      /*
-      unsigned int ii = splitEdges[0];
-      unsigned int jj = ( ii + 1 ) % 3;
-      unsigned int kk = ( ii + 2 ) % 3;
-
-      output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[jj], trianglePointIds[kk] );
-      output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[kk], trianglePointIds[ii] );
-      */
       SplitTriangleFromOneEdge( output, trianglePointIds, edgePointIds, splitEdges );
       }
     else if( n == 2 )
       {
-      unsigned int ii = splitEdges[0];
-      unsigned int jj = splitEdges[1];
       SplitTriangleFromTwoEdges( output, trianglePointIds, edgePointIds, splitEdges );
-/*
-      if( ii == 0 && jj == 1 )
-        {
-        // ii = 0, jj = 1
-        output->AddFaceTriangle( trianglePointIds[2], trianglePointIds[0], edgePointIds[0] );
-        output->AddFaceTriangle( trianglePointIds[2], edgePointIds[0], edgePointIds[1] );
-        output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
-        }
-      else if( ii == 0 && jj == 2 )
-        {
-        // ii = 0, jj = 2
-        output->AddFaceTriangle( trianglePointIds[1], trianglePointIds[2], edgePointIds[0] );
-        output->AddFaceTriangle( trianglePointIds[2], edgePointIds[2], edgePointIds[0] );
-        output->AddFaceTriangle( edgePointIds[2], trianglePointIds[0], edgePointIds[0] );
-        }
-      else if( ii == 1 && jj == 2 )
-        {
-        // ii = 1, jj = 2
-        output->AddFaceTriangle( trianglePointIds[0], trianglePointIds[1], edgePointIds[1] );
-        output->AddFaceTriangle( trianglePointIds[0], edgePointIds[1], edgePointIds[2] );
-        output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
-        }
-        */
       }
     else if( n == 3 )
       {
       // this face was not supposed to be subdivided but all neighbors are
-      SplitTriangleFromThreeEdges( output, trianglePointIds, edgePointIds , splitEdges );
-      /*
-      if( this->m_Uniform )
-        {
-        output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] );
-        output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
-        output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
-        output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] );
-        }
-      else
-        {
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2])->GetLeft() );
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1])->GetLeft() );
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2])->GetLeft() );
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2])->GetLeft() );
-        }
-        */
+      SplitTriangleFromThreeEdges( output, trianglePointIds, edgePointIds );
       }
 
     ++cellIt;
@@ -213,8 +164,8 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   unsigned int jj = ( ii + 1 ) % 3;
   unsigned int kk = ( ii + 2 ) % 3;
 
-  this->GetOutput()->AddFaceTriangle( edgePointIds[ii], trianglePointIds[jj], trianglePointIds[kk] );
-  this->GetOutput()->AddFaceTriangle( edgePointIds[ii], trianglePointIds[kk], trianglePointIds[ii] );
+  output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[jj], trianglePointIds[kk] );
+  output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[kk], trianglePointIds[ii] );
 }
 
 template< typename TInputMesh, typename TOutputMesh >
@@ -256,8 +207,7 @@ void
 CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::SplitTriangleFromThreeEdges( OutputMeshType * output,
   const OutputPointIdentifier * trianglePointIds,
-  const OutputPointIdentifier * edgePointIds,
-  const unsigned int * splitEdges )
+  const OutputPointIdentifier * edgePointIds)
 {
   // this face was not supposed to be subdivided but all neighbors are
   if( this->m_Uniform )
