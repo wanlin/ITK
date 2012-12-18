@@ -79,14 +79,13 @@ protected:
 
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-private:
-  ConditionalCellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                // purposely not implemented
-
-protected:
   CellSubdivisionFilterPointer  m_CellSubdivisionFilter;
   OutputCellIdentifierListType  m_CellsToBeSubdivided;
   CriterionPointer              m_SubdivisionCriterion;
+
+private:
+  ConditionalCellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
+  void operator=(const Self &);                // purposely not implemented
 };
 } // end namespace itk
 

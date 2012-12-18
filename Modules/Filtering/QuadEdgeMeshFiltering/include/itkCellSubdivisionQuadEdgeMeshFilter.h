@@ -83,11 +83,7 @@ public:
   itkTypeMacro(CellSubdivisionQuadEdgeMeshFilter, SubdivisionQuadEdgeMeshFilter);
 
   itkGetConstReferenceMacro(CellsToBeSubdivided, OutputCellIdentifierListType);
-  void SetCellsToBeSubdivided(const OutputCellIdentifierListType & cellIdList)
-    {
-    m_CellsToBeSubdivided = cellIdList;
-    this->Modified();
-    }
+  void SetCellsToBeSubdivided(const OutputCellIdentifierListType & cellIdList);
 
   void AddSubdividedCellId(OutputCellIdentifier cellId){m_CellsToBeSubdivided.push_back(cellId);}
 
@@ -100,15 +96,18 @@ protected:
   virtual void GenerateOutputPoints( );
   virtual void GenerateOutputCells( );
 
+  void SplitTriangleFromOneEdge( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+  void SplitTriangleFromTwoEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+  void SplitTriangleFromThreeEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+
   void PrintSelf(std::ostream & os, Indent indent) const;
+
+  OutputCellIdentifierListType        m_CellsToBeSubdivided;
+  bool                                m_Uniform;
 
 private:
   CellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
   void operator=(const Self &); // purposely not implemented
-
-protected:
-  OutputCellIdentifierListType        m_CellsToBeSubdivided;
-  bool                                m_Uniform;
 };
 } // end namespace itk
 

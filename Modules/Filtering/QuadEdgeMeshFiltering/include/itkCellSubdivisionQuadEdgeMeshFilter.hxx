@@ -33,6 +33,15 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 template< typename TInputMesh, typename TOutputMesh >
 void
 CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SetCellsToBeSubdivided(const OutputCellIdentifierListType & cellIdList)
+{
+  this->m_CellsToBeSubdivided = cellIdList;
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::GenerateOutputPoints()
 {
   this->CopyInputMeshToOutputMeshPoints();
@@ -45,9 +54,11 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
   if( this->m_Uniform )
     {
-    for ( InputCellsContainerConstIterator cellIt = cells->Begin(); cellIt != cells->End(); ++cellIt )
+    InputCellsContainerConstIterator cellIt = cells->Begin();
+    while ( cellIt != cells->End() )
       {
       this->AddNewPoints( cellIt->Value() );
+      ++cellIt;
       }
     }
   else
@@ -75,9 +86,9 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
   const InputCellsContainer * cells = input->GetCells();
 
-  for ( InputCellsContainerConstIterator cellIt = cells->Begin();
-        cellIt != cells->End();
-        ++cellIt )
+  InputCellsContainerConstIterator cellIt = cells->Begin();
+
+  while ( cellIt != cells->End() )
     {
     InputCellType* cell = cellIt->Value();
 
@@ -87,8 +98,8 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       }
 
     InputPointIdentifier  inputPointIdArray[3];
-    OutputPointIdentifier oldPointIdArray[3];
-    OutputPointIdentifier newPointIdArray[3];
+    OutputPointIdentifier trianglePointIds[3];
+    OutputPointIdentifier edgePointIds[3];
 
     InputPointIdIterator it = cell->PointIdsBegin();
     unsigned int          n = 0;
@@ -96,7 +107,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     while ( it != cell->PointIdsEnd() )
       {
       inputPointIdArray[n] = *it;
-      oldPointIdArray[n] = static_cast< OutputPointIdentifier >( inputPointIdArray[n] );
+      trianglePointIds[n] = static_cast< OutputPointIdentifier >( inputPointIdArray[n] );
       ++it;
       ++n;
       }
@@ -112,7 +123,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
       if ( this->m_EdgesPointIdentifier->IndexExists( edge ) )
         {
-        newPointIdArray[ii] = this->m_EdgesPointIdentifier->GetElement( edge );
+        edgePointIds[ii] = this->m_EdgesPointIdentifier->GetElement( edge );
         splitEdges[n] = ii;
         ++n;
         }
@@ -121,62 +132,147 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     if( n == 0 )
       {
       // this face has no subdivided face as neighbor, copy it
-      output->AddFaceTriangle(oldPointIdArray[0], oldPointIdArray[1], oldPointIdArray[2]);
+      output->AddFaceTriangle(trianglePointIds[0], trianglePointIds[1], trianglePointIds[2]);
       }
     else if( n == 1 )
       {
+      /*
       unsigned int ii = splitEdges[0];
       unsigned int jj = ( ii + 1 ) % 3;
       unsigned int kk = ( ii + 2 ) % 3;
 
-      output->AddFaceTriangle( newPointIdArray[ii], oldPointIdArray[jj], oldPointIdArray[kk] );
-      output->AddFaceTriangle( newPointIdArray[ii], oldPointIdArray[kk], oldPointIdArray[ii] );
+      output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[jj], trianglePointIds[kk] );
+      output->AddFaceTriangle( edgePointIds[ii], trianglePointIds[kk], trianglePointIds[ii] );
+      */
+      SplitTriangleFromOneEdge( output, trianglePointIds, edgePointIds, splitEdges );
       }
     else if( n == 2 )
       {
       unsigned int ii = splitEdges[0];
       unsigned int jj = splitEdges[1];
-
+      SplitTriangleFromTwoEdges( output, trianglePointIds, edgePointIds, splitEdges );
+/*
       if( ii == 0 && jj == 1 )
         {
         // ii = 0, jj = 1
-        output->AddFaceTriangle( oldPointIdArray[2], oldPointIdArray[0], newPointIdArray[0] );
-        output->AddFaceTriangle( oldPointIdArray[2], newPointIdArray[0], newPointIdArray[1] );
-        output->AddFaceTriangle( newPointIdArray[0], oldPointIdArray[1], newPointIdArray[1] );
+        output->AddFaceTriangle( trianglePointIds[2], trianglePointIds[0], edgePointIds[0] );
+        output->AddFaceTriangle( trianglePointIds[2], edgePointIds[0], edgePointIds[1] );
+        output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
         }
       else if( ii == 0 && jj == 2 )
         {
         // ii = 0, jj = 2
-        output->AddFaceTriangle( oldPointIdArray[1], oldPointIdArray[2], newPointIdArray[0] );
-        output->AddFaceTriangle( oldPointIdArray[2], newPointIdArray[2], newPointIdArray[0] );
-        output->AddFaceTriangle( newPointIdArray[2], oldPointIdArray[0], newPointIdArray[0] );
+        output->AddFaceTriangle( trianglePointIds[1], trianglePointIds[2], edgePointIds[0] );
+        output->AddFaceTriangle( trianglePointIds[2], edgePointIds[2], edgePointIds[0] );
+        output->AddFaceTriangle( edgePointIds[2], trianglePointIds[0], edgePointIds[0] );
         }
       else if( ii == 1 && jj == 2 )
         {
         // ii = 1, jj = 2
-        output->AddFaceTriangle( oldPointIdArray[0], oldPointIdArray[1], newPointIdArray[1] );
-        output->AddFaceTriangle( oldPointIdArray[0], newPointIdArray[1], newPointIdArray[2] );
-        output->AddFaceTriangle( newPointIdArray[1], oldPointIdArray[2], newPointIdArray[2] );
+        output->AddFaceTriangle( trianglePointIds[0], trianglePointIds[1], edgePointIds[1] );
+        output->AddFaceTriangle( trianglePointIds[0], edgePointIds[1], edgePointIds[2] );
+        output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
         }
+        */
       }
     else if( n == 3 )
       {
       // this face was not supposed to be subdivided but all neighbors are
+      SplitTriangleFromThreeEdges( output, trianglePointIds, edgePointIds , splitEdges );
+      /*
       if( this->m_Uniform )
         {
-        output->AddFaceTriangle(oldPointIdArray[0], newPointIdArray[0], newPointIdArray[2]);
-        output->AddFaceTriangle(newPointIdArray[0], oldPointIdArray[1], newPointIdArray[1]);
-        output->AddFaceTriangle(newPointIdArray[1], oldPointIdArray[2], newPointIdArray[2]);
-        output->AddFaceTriangle(newPointIdArray[0], newPointIdArray[1], newPointIdArray[2]);
+        output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] );
+        output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
+        output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
+        output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] );
         }
       else
         {
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle(oldPointIdArray[0], newPointIdArray[0], newPointIdArray[2])->GetLeft());
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle(newPointIdArray[0], oldPointIdArray[1], newPointIdArray[1])->GetLeft());
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle(newPointIdArray[1], oldPointIdArray[2], newPointIdArray[2])->GetLeft());
-        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle(newPointIdArray[0], newPointIdArray[1], newPointIdArray[2])->GetLeft());
+        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2])->GetLeft() );
+        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1])->GetLeft() );
+        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2])->GetLeft() );
+        this->m_CellsToBeSubdivided.push_back(output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2])->GetLeft() );
         }
+        */
       }
+
+    ++cellIt;
+    }
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SplitTriangleFromOneEdge( OutputMeshType * output,
+  const OutputPointIdentifier * trianglePointIds,
+  const OutputPointIdentifier * edgePointIds,
+  const unsigned int * splitEdges )
+{
+  unsigned int ii = splitEdges[0];
+  unsigned int jj = ( ii + 1 ) % 3;
+  unsigned int kk = ( ii + 2 ) % 3;
+
+  this->GetOutput()->AddFaceTriangle( edgePointIds[ii], trianglePointIds[jj], trianglePointIds[kk] );
+  this->GetOutput()->AddFaceTriangle( edgePointIds[ii], trianglePointIds[kk], trianglePointIds[ii] );
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SplitTriangleFromTwoEdges( OutputMeshType * output,
+  const OutputPointIdentifier * trianglePointIds,
+  const OutputPointIdentifier * edgePointIds,
+  const unsigned int * splitEdges )
+{
+  unsigned int ii = splitEdges[0];
+  unsigned int jj = splitEdges[1];
+
+  if( ii == 0 && jj == 1 )
+    {
+    // ii = 0, jj = 1
+    output->AddFaceTriangle( trianglePointIds[2], trianglePointIds[0], edgePointIds[0] );
+    output->AddFaceTriangle( trianglePointIds[2], edgePointIds[0], edgePointIds[1] );
+    output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
+    }
+  else if( ii == 0 && jj == 2 )
+    {
+    // ii = 0, jj = 2
+    output->AddFaceTriangle( trianglePointIds[1], trianglePointIds[2], edgePointIds[0] );
+    output->AddFaceTriangle( trianglePointIds[2], edgePointIds[2], edgePointIds[0] );
+    output->AddFaceTriangle( edgePointIds[2], trianglePointIds[0], edgePointIds[0] );
+    }
+  else if( ii == 1 && jj == 2 )
+    {
+    // ii = 1, jj = 2
+    output->AddFaceTriangle( trianglePointIds[0], trianglePointIds[1], edgePointIds[1] );
+    output->AddFaceTriangle( trianglePointIds[0], edgePointIds[1], edgePointIds[2] );
+    output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
+    }
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SplitTriangleFromThreeEdges( OutputMeshType * output,
+  const OutputPointIdentifier * trianglePointIds,
+  const OutputPointIdentifier * edgePointIds,
+  const unsigned int * splitEdges )
+{
+  // this face was not supposed to be subdivided but all neighbors are
+  if( this->m_Uniform )
+    {
+    output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] );
+    output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
+    output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
+    output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] );
+    }
+  else
+    {
+    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] )->GetLeft() );
+    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] )->GetLeft() );
+    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] )->GetLeft() );
+    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] )->GetLeft() );
     }
 }
 
