@@ -30,16 +30,6 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   const InputMeshType * input = this->GetInput();
   OutputMeshType * output = this->GetOutput();
 
-//  InputCoordType pointWeight[4] = {0.375, 0.375, 0.125, 0.125};
-//  InputPointType pointArray[4];
-
-//  pointArray[2].SetToMidPoint(pointArray[0], pointArray[1]);
-//  InputPointType newPoint;
-//  newPoint.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
-
-//  input->GetPoint( edge->GetOrigin(), &pointArray[0] );
-//  input->GetPoint( edge->GetDestination(), &pointArray[1] );
-
   if ( edge->IsInternal() )
     {
     InputCoordType pointWeight[4] = {0.375, 0.375, 0.125, 0.125};
@@ -53,20 +43,20 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
     if ( edge->GetLnext() )
       {
-      input->GetPoint(edge->GetLnext()->GetDestination(), &pointArray[2]);
+      input->GetPoint( edge->GetLnext()->GetDestination(), &pointArray[2] );
       }
     else
       {
-      pointArray[2].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+      pointArray[2].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
       }
 
     if ( edge->GetRprev() )
       {
-      input->GetPoint(edge->GetRprev()->GetDestination(), &pointArray[3]);
+      input->GetPoint( edge->GetRprev()->GetDestination(), &pointArray[3] );
       }
     else
       {
-      pointArray[3].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+      pointArray[3].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
       }
 
     for ( unsigned int kk = 0; kk < 3; kk++ )
@@ -83,7 +73,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
     OutputPointType outPoint;
     outPoint.CastFrom( newPoint );
-    output->SetPoint( numberOfPoints, outPoint);
+    output->SetPoint( numberOfPoints, outPoint );
     }
   else if ( edge->IsAtBorder() )
     {
@@ -105,7 +95,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     }
   else
     {
-    itkExceptionMacro(<< "Wire edge detected");
+    itkExceptionMacro( << "Wire edge detected" );
     }
 
   return;
@@ -131,7 +121,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     bool copyFlag = true;
     while( qter1 != edge )
       {
-      if(std::find( this->m_EdgesToBeSubdivided.begin(),
+      if( std::find( this->m_EdgesToBeSubdivided.begin(),
           this->m_EdgesToBeSubdivided.end(),
           qter0 ) != this->m_EdgesToBeSubdivided.end() )
         {
@@ -164,7 +154,6 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   InputPointType opt;
   opt.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
 
-  //InputPointType bpt = NumericTraits< InputPointType >::ZeroValue();
   InputPointType bpt;
   bpt.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
 

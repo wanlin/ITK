@@ -119,7 +119,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       {
       unsigned int jj = ( ii + 1 ) % 3;
 
-      edge = input->FindEdge(inputPointIdArray[ii], inputPointIdArray[jj]);
+      edge = input->FindEdge( inputPointIdArray[ii], inputPointIdArray[jj] );
 
       if ( this->m_EdgesPointIdentifier->IndexExists( edge ) )
         {
@@ -132,7 +132,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     if( n == 0 )
       {
       // this face has no subdivided face as neighbor, copy it
-      output->AddFaceTriangle(trianglePointIds[0], trianglePointIds[1], trianglePointIds[2]);
+      output->AddFaceTriangle( trianglePointIds[0], trianglePointIds[1], trianglePointIds[2] );
       }
     else if( n == 1 )
       {
@@ -231,7 +231,7 @@ void
 CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
-  Superclass::PrintSelf(os, indent);
+  Superclass::PrintSelf( os, indent );
 }
 }
 #endif

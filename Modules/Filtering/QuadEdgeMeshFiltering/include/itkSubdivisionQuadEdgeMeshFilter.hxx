@@ -47,7 +47,7 @@ void
 SubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
-  Superclass::PrintSelf(os, indent);
+  Superclass::PrintSelf( os, indent );
 }
 }
 #endif

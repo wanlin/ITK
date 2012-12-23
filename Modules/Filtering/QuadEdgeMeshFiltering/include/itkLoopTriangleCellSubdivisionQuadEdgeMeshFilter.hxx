@@ -30,7 +30,7 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
     {
-    itkExceptionMacro(<<" The input cell is not a triangle cell");
+    itkExceptionMacro( <<" The input cell is not a triangle cell" );
     }
 
   const InputMeshType * input = this->GetInput();
@@ -55,34 +55,34 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     {
     unsigned int jj = ( ii + 1 ) % 3;
 
-    InputQEType *edge = input->FindEdge(pointIdArray[ii], pointIdArray[jj]);
+    InputQEType *edge = input->FindEdge( pointIdArray[ii], pointIdArray[jj] );
 
     if ( !this->m_EdgesPointIdentifier->IndexExists( edge ) )
       {
       if ( edge->IsInternal() )
         {
         InputPointType newPoint;
-        newPoint.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+        newPoint.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
 
-        input->GetPoint(pointIdArray[ii], &pointArray[0]);
-        input->GetPoint(pointIdArray[jj], &pointArray[1]);
+        input->GetPoint( pointIdArray[ii], &pointArray[0] );
+        input->GetPoint( pointIdArray[jj], &pointArray[1] );
 
         if ( edge->GetLnext() )
           {
-          input->GetPoint(edge->GetLnext()->GetDestination(), &pointArray[2]);
+          input->GetPoint( edge->GetLnext()->GetDestination(), &pointArray[2] );
           }
         else
           {
-          pointArray[2].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+          pointArray[2].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
           }
 
         if ( edge->GetRprev() )
           {
-          input->GetPoint(edge->GetRprev()->GetDestination(), &pointArray[3]);
+          input->GetPoint( edge->GetRprev()->GetDestination(), &pointArray[3] );
           }
         else
           {
-          pointArray[3].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+          pointArray[3].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
           }
 
         for ( unsigned int kk = 0; kk < 3; kk++ )
@@ -102,11 +102,11 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
         }
       else if ( edge->IsAtBorder() )
         {
-        input->GetPoint(pointIdArray[ii], &pointArray[0]);
-        input->GetPoint(pointIdArray[jj], &pointArray[1]);
+        input->GetPoint( pointIdArray[ii], &pointArray[0] );
+        input->GetPoint( pointIdArray[jj], &pointArray[1] );
 
         InputPointType newPoint;
-        newPoint.SetToMidPoint(pointArray[0], pointArray[1]);
+        newPoint.SetToMidPoint( pointArray[0], pointArray[1] );
 
         this->m_EdgesPointIdentifier->InsertElement( edge, numberOfPoints );
         this->m_EdgesPointIdentifier->InsertElement( edge->GetSym(), numberOfPoints );
@@ -211,69 +211,16 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
           }
         OutputPointType outpoint;
         outpoint.CastFrom( opt );
-        output->SetPoint(ptIt->Index(), outpoint);
+        output->SetPoint( ptIt->Index(), outpoint );
         }
       else
         {
         OutputPointType outpoint;
         outpoint.CastFrom( ipt );
-        output->SetPoint(ptIt->Index(), outpoint);
+        output->SetPoint( ptIt->Index(), outpoint );
         }
       }
     }
-/*
-  const InputPointsContainer * points = input->GetPoints();
-  output->GetPoints()->Reserve( input->GetNumberOfPoints() );
-  for ( InputPointsContainerConstIterator ptIt = points->Begin(); ptIt != points->End(); ++ptIt )
-    {
-    InputPointType ipt = ptIt->Value();
-//    InputPointType opt = NumericTraits< InputPointType >::ZeroValue();
-    InputPointType opt;
-    opt.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
-    unsigned int nn = 0;
-
-    //InputPointType bpt = NumericTraits< InputPointType >::ZeroValue();
-    InputPointType bpt;
-    bpt.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
-    unsigned int nb = 0;
-
-    InputQEType *edge = input->FindEdge( ptIt->Index() );
-    typename InputQEType::IteratorGeom q_it = edge->BeginGeomOnext();
-    while ( q_it != edge->EndGeomOnext() )
-      {
-      if ( q_it.Value()->IsAtBorder() )
-        {
-        bpt += points->ElementAt( q_it.Value()->GetDestination() ).GetVectorFromOrigin();
-        ++nb;
-        }
-
-      opt += points->ElementAt( q_it.Value()->GetDestination() ).GetVectorFromOrigin();
-      ++nn;
-      ++q_it;
-      }
-
-    if ( nb )
-      {
-      for ( unsigned int kk = 0; kk < 3; ++kk )
-        {
-        opt[kk] = 0.75 * ipt[kk] + 0.125 * bpt[kk];
-        }
-      }
-    else
-      {
-      InputCoordType var  = 0.375 + 0.25 * vcl_cos(2.0 * vnl_math::pi / nn);
-      InputCoordType beta = ( 0.625 - var * var ) / nn;
-      for ( unsigned int kk = 0; kk < 3; ++kk )
-        {
-        opt[kk] = ( 1.0 - nn * beta ) * ipt[kk] + beta * opt[kk];
-        }
-      }
-
-    OutputPointType outpoint;
-    outpoint.CastFrom( opt );
-    output->SetPoint(ptIt->Index(), outpoint);
-    }
-    */
 }
 }
 #endif

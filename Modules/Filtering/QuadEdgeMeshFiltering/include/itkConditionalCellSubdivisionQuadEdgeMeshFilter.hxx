@@ -36,7 +36,8 @@ ConditionalCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter
 ::GenerateData()
 {
   this->CopyInputMeshToOutputMeshGeometry();
-  this->m_SubdivisionCriterion->Compute(this->GetOutput(), this->m_CellsToBeSubdivided);
+  this->m_SubdivisionCriterion->Compute( this->GetOutput(), this->m_CellsToBeSubdivided );
+
   while(!this->m_CellsToBeSubdivided.empty())
     {
     this->m_CellSubdivisionFilter->SetInput( this->GetOutput() );
@@ -44,8 +45,8 @@ ConditionalCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter
     this->m_CellSubdivisionFilter->Update();
     OutputMeshPointer mesh = this->m_CellSubdivisionFilter->GetOutput();
     mesh->DisconnectPipeline();
-    this->GetOutput()->Graft(mesh);
-    this->m_SubdivisionCriterion->Compute(this->GetOutput(), this->m_CellsToBeSubdivided);
+    this->GraftOutput( mesh );
+    this->m_SubdivisionCriterion->Compute( this->GetOutput(), this->m_CellsToBeSubdivided );
     }
 }
 
@@ -54,7 +55,7 @@ void
 ConditionalCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter, TCriterion >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
-  Superclass::PrintSelf(os, indent);
+  Superclass::PrintSelf( os, indent );
 }
 }
 #endif

@@ -29,7 +29,7 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
   {
-  itkExceptionMacro(<<" The input cell is not a triangle cell");
+  itkExceptionMacro( <<" The input cell is not a triangle cell" );
   }
 
   const InputMeshType * input = this->GetInput();
@@ -54,15 +54,15 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
     {
     unsigned int jj = ( ii + 1 ) % 3;
 
-    InputQEType *edge = input->FindEdge(pointIdArray[ii], pointIdArray[jj]);
+    InputQEType *edge = input->FindEdge( pointIdArray[ii], pointIdArray[jj] );
 
     if ( !this->m_EdgesPointIdentifier->IndexExists( edge ) )
       {
       InputPointType newPoint;
-      newPoint.Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+      newPoint.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
 
-      input->GetPoint(pointIdArray[ii], &pointArray[0]);
-      input->GetPoint(pointIdArray[jj], &pointArray[1]);
+      input->GetPoint( pointIdArray[ii], &pointArray[0] );
+      input->GetPoint( pointIdArray[jj], &pointArray[1] );
 
       if ( edge->GetLnext() )
         {
@@ -70,33 +70,35 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
 
         if ( edge->GetLnext()->GetRprev() )
           {
-          input->GetPoint(edge->GetLnext()->GetRprev()->GetDestination(), &pointArray[4]);
+          input->GetPoint( edge->GetLnext()->GetRprev()->GetDestination(), &pointArray[4] );
           }
         else
           {
-          pointArray[4].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+          pointArray[4].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
           }
         }
       else
         {
-        pointArray[2].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+        pointArray[2].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
+        pointArray[4].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         }
 
       if ( edge->GetRprev() )
         {
-        input->GetPoint(edge->GetRprev()->GetDestination(), &pointArray[3]);
+        input->GetPoint( edge->GetRprev()->GetDestination(), &pointArray[3] );
         if ( edge->GetRprev()->GetLnext() )
           {
-          input->GetPoint(edge->GetRprev()->GetLnext()->GetDestination(), &pointArray[5]);
+          input->GetPoint( edge->GetRprev()->GetLnext()->GetDestination(), &pointArray[5] );
           }
         else
           {
-          pointArray[5].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+          pointArray[5].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
           }
         }
       else
         {
-        pointArray[3].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+        pointArray[3].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
+        pointArray[5].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         }
 
       if ( edge->GetLprev() && edge->GetLprev()->GetRprev() )
@@ -105,16 +107,16 @@ ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputM
         }
       else
         {
-        pointArray[6].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+        pointArray[6].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         }
 
       if ( edge->GetRnext() && edge->GetRnext()->GetLnext() )
         {
-        input->GetPoint(edge->GetRnext()->GetLnext()->GetDestination(), &pointArray[7]);
+        input->GetPoint( edge->GetRnext()->GetLnext()->GetDestination(), &pointArray[7] );
         }
       else
         {
-        pointArray[7].Fill(NumericTraits< typename InputPointType::ValueType >::Zero);
+        pointArray[7].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         }
 
       for ( unsigned int kk = 0; kk < 3; ++kk )

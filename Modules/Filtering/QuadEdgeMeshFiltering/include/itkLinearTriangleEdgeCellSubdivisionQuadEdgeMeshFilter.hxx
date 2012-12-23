@@ -30,9 +30,9 @@ LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   OutputMeshType * output = this->GetOutput();
 
   InputPointType pointArray[3];
-  this->GetInput()->GetPoint(edge->GetOrigin(), &pointArray[0]);
-  this->GetInput()->GetPoint(edge->GetDestination(), &pointArray[1]);
-  pointArray[2].SetToMidPoint(pointArray[0], pointArray[1]);
+  this->GetInput()->GetPoint( edge->GetOrigin(), &pointArray[0] );
+  this->GetInput()->GetPoint( edge->GetDestination(), &pointArray[1] );
+  pointArray[2].SetToMidPoint( pointArray[0], pointArray[1] );
 
   OutputPointType outpoint;
   outpoint.CastFrom( pointArray[2] );
@@ -41,7 +41,7 @@ LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
   this->m_EdgesPointIdentifier->InsertElement( edge, numberOfPoints );
   this->m_EdgesPointIdentifier->InsertElement( edge->GetSym(), numberOfPoints);
-  output->SetPoint(numberOfPoints, outpoint);
+  output->SetPoint( numberOfPoints, outpoint );
 
   return;
 }

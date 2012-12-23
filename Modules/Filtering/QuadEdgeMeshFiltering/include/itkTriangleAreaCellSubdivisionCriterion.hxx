@@ -26,16 +26,16 @@ namespace itk
 template< typename TMesh >
 void
 TriangleAreaCellSubdivisionCriterion< TMesh >::
-Compute(MeshType * mesh, CellIdContainer & cellIds)
+Compute( MeshType * mesh, CellIdContainer & cellIds )
 {
   cellIds.clear();
   const CellsContainer * cells = mesh->GetCells();
   if( !cells )
     {
-    itkExceptionMacro("<<Input mesh has not cells");
+    itkExceptionMacro( "<<Input mesh has not cells" );
     }
 
-  for(CellsContainerConstIterator cter = cells->Begin(); cter != cells->End(); ++cter)
+  for( CellsContainerConstIterator cter = cells->Begin(); cter != cells->End(); ++cter )
     {
     CellType * cell = cter->Value();
     if ( cell->GetType() != CellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
@@ -49,7 +49,7 @@ Compute(MeshType * mesh, CellIdContainer & cellIds)
 
     while ( pter != cell->PointIdsEnd() )
       {
-      mesh->GetPoint(*pter,&pointArray[nn]);
+      mesh->GetPoint( *pter,&pointArray[nn] );
       ++pter;
       ++nn;
       }
