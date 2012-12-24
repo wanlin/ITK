@@ -26,19 +26,19 @@ namespace itk
 template< typename TMesh >
 void
 EdgeLengthEdgeCellSubdivisionCriterion< TMesh >::
-Compute(MeshType * mesh, EdgeListType & edgeList)
+Compute( MeshType * mesh, EdgeListType & edgeList )
 {
   edgeList.clear();
   typename MeshType::CellsContainer::ConstPointer edges = mesh->GetEdgeCells();
   if( !edges )
     {
-    itkExceptionMacro("<<Input mesh has no edges");
+    itkExceptionMacro( "<<Input mesh has no edges" );
     }
 
   PointType pointArray[2];
-  for(typename MeshType::CellsContainer::ConstIterator eter = edges->Begin(); eter != edges->End(); ++eter)
+  for( typename MeshType::CellsContainer::ConstIterator eter = edges->Begin(); eter != edges->End(); ++eter )
     {
-    typename MeshType::EdgeCellType * edge = dynamic_cast<typename MeshType::EdgeCellType *>(eter.Value());
+    typename MeshType::EdgeCellType * edge = dynamic_cast<typename MeshType::EdgeCellType *>( eter.Value() );
     if( edge )
       {
       mesh->GetPoint( edge->PointIdsBegin()[0], &pointArray[0] );
