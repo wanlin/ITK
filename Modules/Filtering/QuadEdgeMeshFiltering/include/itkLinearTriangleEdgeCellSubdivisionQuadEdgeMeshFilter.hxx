@@ -25,7 +25,7 @@ namespace itk
 template< typename TInputMesh, typename TOutputMesh >
 void
 LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputQEType * edge )
+::AddNewEdgePoints( InputQEType * edge )
 {
   OutputMeshType * output = this->GetOutput();
 
@@ -40,7 +40,7 @@ LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   OutputPointIdentifier numberOfPoints = output->GetNumberOfPoints();
 
   this->m_EdgesPointIdentifier->InsertElement( edge, numberOfPoints );
-  this->m_EdgesPointIdentifier->InsertElement( edge->GetSym(), numberOfPoints);
+  this->m_EdgesPointIdentifier->InsertElement( edge->GetSym(), numberOfPoints );
   output->SetPoint( numberOfPoints, outpoint );
 
   return;

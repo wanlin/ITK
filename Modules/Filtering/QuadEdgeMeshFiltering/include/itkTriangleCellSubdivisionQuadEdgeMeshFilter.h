@@ -16,25 +16,25 @@
  *
  *=========================================================================*/
 
-#ifndef __itkEdgeCellSubdivisionQuadEdgeMeshFilter_h
-#define __itkEdgeCellSubdivisionQuadEdgeMeshFilter_h
+#ifndef __itkTriangleCellSubdivisionQuadEdgeMeshFilter_h
+#define __itkTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
 #include "itkSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
 /**
- * \class EdgeCellSubdivisionQuadEdgeMeshFilter
+ * \class TriangleCellSubdivisionQuadEdgeMeshFilter
  *
  * \brief FIXME
  * \ingroup ITKQuadEdgeMeshFiltering
  */
 template< typename TInputMesh, typename TOutputMesh >
-class EdgeCellSubdivisionQuadEdgeMeshFilter:
+class TriangleCellSubdivisionQuadEdgeMeshFilter:
   public SubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef EdgeCellSubdivisionQuadEdgeMeshFilter                        Self;
+  typedef TriangleCellSubdivisionQuadEdgeMeshFilter                    Self;
   typedef SubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >     Superclass;
   typedef SmartPointer< Self >                                         Pointer;
   typedef SmartPointer< const Self >                                   ConstPointer;
@@ -76,43 +76,41 @@ public:
   typedef typename Superclass::OutputMeshTraits                        OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                   OutputPointIdIterator;
 
-  typedef std::list< InputQEType * >                                   InputEdgeListType;
-  typedef typename InputEdgeListType::const_iterator                   InputEdgeListConstIterator;
+  typedef std::list< OutputCellIdentifier >                            SubdivisionCellContainer;
+  typedef typename SubdivisionCellContainer::const_iterator            SubdivisionCellContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(EdgeCellSubdivisionQuadEdgeMeshFilter, SubdivisionQuadEdgeMeshFilter);
+  itkTypeMacro( TriangleCellSubdivisionQuadEdgeMeshFilter, SubdivisionQuadEdgeMeshFilter );
+  itkGetConstReferenceMacro( CellsToBeSubdivided, SubdivisionCellContainer );
 
-  itkGetConstReferenceMacro(EdgesToBeSubdivided, InputEdgeListType);
-  void SetEdgesToBeSubdivided(const InputEdgeListType & EdgesList)
-    {
-    m_EdgesToBeSubdivided = EdgesList;
-    this->Modified();
-    }
-
-  void AddSubdividedEdge(InputQEType * edge){m_EdgesToBeSubdivided.push_back(edge);}
+  void SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList );
+  void AddSubdividedCellId( OutputCellIdentifier cellId );
 
 protected:
-  EdgeCellSubdivisionQuadEdgeMeshFilter();
+  TriangleCellSubdivisionQuadEdgeMeshFilter();
+  virtual ~TriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual ~EdgeCellSubdivisionQuadEdgeMeshFilter() {}
-
-  virtual void AddNewPoints( InputQEType * edge ) = 0;
+  virtual void AddNewCellPoints( InputCellType *cell ) = 0;
   virtual void GenerateOutputPoints( );
   virtual void GenerateOutputCells( );
 
+  void SplitTriangleFromOneEdge( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+  void SplitTriangleFromTwoEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds, const unsigned int * splitEdges );
+  void SplitTriangleFromThreeEdges( OutputMeshType * output, const OutputPointIdentifier * trianglePointIds, const OutputPointIdentifier * edgePointIds );
+
   void PrintSelf(std::ostream & os, Indent indent) const;
 
-private:
-  EdgeCellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                // purposely not implemented
+  SubdivisionCellContainer        m_CellsToBeSubdivided;
+  bool                            m_Uniform;
 
-protected:
-  InputEdgeListType                   m_EdgesToBeSubdivided;
+private:
+  TriangleCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & ); // purposely not implemented
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkEdgeCellSubdivisionQuadEdgeMeshFilter.hxx"
+#include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.hxx"
 #endif
 
 #endif

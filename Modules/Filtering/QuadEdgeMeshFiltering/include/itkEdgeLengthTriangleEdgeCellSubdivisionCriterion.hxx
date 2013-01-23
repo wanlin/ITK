@@ -16,17 +16,17 @@
  *
  *=========================================================================*/
 
-#ifndef __itkEdgeLengthEdgeCellSubdivisionCriterion_hxx
-#define __itkEdgeLengthEdgeCellSubdivisionCriterion_hxx
+#ifndef __itkEdgeLengthTriangleEdgeCellSubdivisionCriterion_hxx
+#define __itkEdgeLengthTriangleEdgeCellSubdivisionCriterion_hxx
 
-#include "itkEdgeLengthEdgeCellSubdivisionCriterion.h"
+#include "itkEdgeLengthTriangleEdgeCellSubdivisionCriterion.h"
 
 namespace itk
 {
 template< typename TMesh >
 void
-EdgeLengthEdgeCellSubdivisionCriterion< TMesh >::
-Compute( MeshType * mesh, EdgeListType & edgeList )
+EdgeLengthTriangleEdgeCellSubdivisionCriterion< TMesh >
+::Compute(MeshType * mesh, SubdivisionCellContainer & edgeList)
 {
   edgeList.clear();
   typename MeshType::CellsContainer::ConstPointer edges = mesh->GetEdgeCells();
@@ -35,19 +35,18 @@ Compute( MeshType * mesh, EdgeListType & edgeList )
     itkExceptionMacro( "<<Input mesh has no edges" );
     }
 
-  PointType pointArray[2];
-  for( typename MeshType::CellsContainer::ConstIterator eter = edges->Begin(); eter != edges->End(); ++eter )
+  typename MeshType::CellsContainer::ConstIterator eter = edges->Begin();
+  while( eter != edges->End() )
     {
     typename MeshType::EdgeCellType * edge = dynamic_cast<typename MeshType::EdgeCellType *>( eter.Value() );
     if( edge )
       {
-      mesh->GetPoint( edge->PointIdsBegin()[0], &pointArray[0] );
-      mesh->GetPoint( edge->PointIdsBegin()[1], &pointArray[1] );
-      if( pointArray[1].EuclideanDistanceTo( pointArray[0] ) > m_MaximumLength )
+      if( mesh->ComputeEdgeLength( edge->GetQEGeom() ) > m_MaximumLength )
         {
-        edgeList.push_back( mesh->FindEdge( edge->PointIdsBegin()[0], edge->PointIdsBegin()[1]) );
+        edgeList.push_back( edge->GetQEGeom() );
         }
       }
+    ++eter;
     }
 }
 

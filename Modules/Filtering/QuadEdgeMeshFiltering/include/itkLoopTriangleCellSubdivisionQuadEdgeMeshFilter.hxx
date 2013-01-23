@@ -19,6 +19,7 @@
 #define __itkLoopTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
 
 #include "itkLoopTriangleCellSubdivisionQuadEdgeMeshFilter.h"
+#include "vnl/vnl_math.h"
 #include <set>
 
 namespace itk
@@ -26,7 +27,7 @@ namespace itk
 template< typename TInputMesh, typename TOutputMesh >
 void
 LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputCellType *cell )
+::AddNewCellPoints( InputCellType *cell )
 {
   if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
     {
@@ -85,7 +86,7 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
           pointArray[3].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
           }
 
-        for ( unsigned int kk = 0; kk < 3; kk++ )
+        for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; kk++ )
           {
           for ( unsigned int mm = 0; mm < 4; mm++ )
             {
@@ -139,18 +140,21 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
   if( this->m_Uniform )
     {
-    for ( InputPointsContainerConstIterator ptIt = points->Begin(); ptIt != points->End(); ++ptIt )
+    InputPointsContainerConstIterator ptIt = points->Begin();
+    while( ptIt != points->End() )
       {
       OutputPointType outpoint;
-      outpoint.CastFrom( ptIt->Value() );
+//      outpoint.CastFrom( ptIt->Value() );
+      outpoint.CastFrom( this->SmoothingPoint( ptIt->Value(), points ) );
       output->SetPoint( ptIt->Index(), outpoint );
+      ++ptIt;
       }
     }
   else
     {
     std::set< InputPointIdentifier > smoothedPointSet;
-    OutputCellIdentifierListConstIterator it  = this->m_CellsToBeSubdivided.begin();
-    OutputCellIdentifierListConstIterator end = this->m_CellsToBeSubdivided.end();
+    SubdivisionCellContainerConstIterator it  = this->m_CellsToBeSubdivided.begin();
+    SubdivisionCellContainerConstIterator end = this->m_CellsToBeSubdivided.end();
     while( it != end )
       {
       InputCellType* cell = cells->GetElement( static_cast<InputCellIdentifier>( *it ) );
@@ -164,12 +168,14 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       ++it;
       }
 
-    for ( InputPointsContainerConstIterator ptIt = points->Begin(); ptIt != points->End(); ++ptIt )
+    InputPointsContainerConstIterator ptIt = points->Begin();
+    while( ptIt != points->End() )
       {
       InputPointType ipt = ptIt->Value();
 
       if ( smoothedPointSet.count( ptIt->Index() ) )
         {
+        /*
         InputPointType opt;
         opt.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         unsigned int nn = 0;
@@ -178,7 +184,7 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
         bpt.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
         unsigned int nb = 0;
 
-        InputQEType *edge = input->FindEdge( ptIt->Index() );
+        InputQEType *edge = ptIt->Value().GetEdge();
         typename InputQEType::IteratorGeom q_it = edge->BeginGeomOnext();
         while ( q_it != edge->EndGeomOnext() )
           {
@@ -195,7 +201,7 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
         if ( nb )
           {
-          for ( unsigned int kk = 0; kk < 3; ++kk )
+          for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
             {
             opt[kk] = 0.75 * ipt[kk] + 0.125 * bpt[kk];
             }
@@ -204,13 +210,17 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
           {
           InputCoordType var  = 0.375 + 0.25 * vcl_cos(2.0 * vnl_math::pi / nn);
           InputCoordType beta = ( 0.625 - var * var ) / nn;
-          for ( unsigned int kk = 0; kk < 3; ++kk )
+          for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
             {
             opt[kk] = ( 1.0 - nn * beta ) * ipt[kk] + beta * opt[kk];
             }
           }
         OutputPointType outpoint;
         outpoint.CastFrom( opt );
+        output->SetPoint( ptIt->Index(), outpoint );
+        */
+        OutputPointType outpoint;
+        outpoint.CastFrom( this->SmoothingPoint( ptIt->Value(), points ) );
         output->SetPoint( ptIt->Index(), outpoint );
         }
       else
@@ -219,8 +229,57 @@ LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
         outpoint.CastFrom( ipt );
         output->SetPoint( ptIt->Index(), outpoint );
         }
+      ++ptIt;
       }
     }
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+typename LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >::InputPointType
+LoopTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SmoothingPoint( const InputPointType & ipt, const InputPointsContainer * points )
+{
+  InputPointType opt;
+  opt.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
+  unsigned int nn = 0;
+
+  InputPointType bpt;
+  bpt.Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
+  unsigned int nb = 0;
+
+  InputQEType *edge = ipt.GetEdge();
+  typename InputQEType::IteratorGeom q_it = edge->BeginGeomOnext();
+  while ( q_it != edge->EndGeomOnext() )
+    {
+    if ( q_it.Value()->IsAtBorder() )
+      {
+      bpt += points->ElementAt( q_it.Value()->GetDestination() ).GetVectorFromOrigin();
+      ++nb;
+      }
+
+    opt += points->ElementAt( q_it.Value()->GetDestination() ).GetVectorFromOrigin();
+    ++nn;
+    ++q_it;
+    }
+
+  if ( nb )
+    {
+    for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
+      {
+      opt[kk] = 0.75 * ipt[kk] + 0.125 * bpt[kk];
+      }
+    }
+  else
+    {
+    InputCoordType var  = 0.375 + 0.25 * vcl_cos(2.0 * vnl_math::pi / nn);
+    InputCoordType beta = ( 0.625 - var * var ) / nn;
+    for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
+      {
+      opt[kk] = ( 1.0 - nn * beta ) * ipt[kk] + beta * opt[kk];
+      }
+    }
+
+  return opt;
 }
 }
 #endif

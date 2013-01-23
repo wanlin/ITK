@@ -19,7 +19,7 @@
 #ifndef __itkLinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter_h
 #define __itkLinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter_h
 
-#include "itkEdgeCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
@@ -31,13 +31,13 @@ namespace itk
  */
 template< typename TInputMesh, typename TOutputMesh >
 class LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter:
-  public EdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+  public TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter                  Self;
-  typedef EdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >     Superclass;
-  typedef SmartPointer< Self >                                                 Pointer;
-  typedef SmartPointer< const Self >                                           ConstPointer;
+  typedef LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter                         Self;
+  typedef TriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >    Superclass;
+  typedef SmartPointer< Self >                                                        Pointer;
+  typedef SmartPointer< const Self >                                                  ConstPointer;
 
   typedef typename Superclass::InputMeshType                                   InputMeshType;
   typedef typename Superclass::InputMeshPointer                                InputMeshPointer;
@@ -74,21 +74,21 @@ public:
   typedef typename Superclass::OutputPointIdIterator                           OutputPointIdIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter,
-               EdgeCellSubdivisionQuadEdgeMeshFilter);
+  itkTypeMacro( LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter,
+               TriangleEdgeCellSubdivisionQuadEdgeMeshFilter );
 
   /** New macro for creation of through a Smart Pointer   */
-  itkNewMacro(Self);
+  itkNewMacro( Self );
 
 protected:
   LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
-  ~LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
+  virtual ~LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputQEType * edge );
+  virtual void AddNewEdgePoints( InputQEType * edge );
 
 private:
-  LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter(const Self &);//purposely not implement
-  void operator=(const Self &);//purposely not implement
+  LinearTriangleEdgeCellSubdivisionQuadEdgeMeshFilter( const Self & );//purposely not implement
+  void operator=( const Self & );//purposely not implement
 };
 }
 

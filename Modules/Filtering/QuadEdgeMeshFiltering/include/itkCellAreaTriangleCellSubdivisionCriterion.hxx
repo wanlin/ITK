@@ -16,17 +16,17 @@
  *
  *=========================================================================*/
 
-#ifndef __itkTriangleAreaCellSubdivisionCriterion_hxx
-#define __itkTriangleAreaCellSubdivisionCriterion_hxx
+#ifndef __itkCellAreaTriangleCellSubdivisionCriterion_hxx
+#define __itkCellAreaTriangleCellSubdivisionCriterion_hxx
 
-#include "itkTriangleAreaCellSubdivisionCriterion.h"
+#include "itkCellAreaTriangleCellSubdivisionCriterion.h"
 
 namespace itk
 {
-template< typename TMesh >
+template< typename TTriangleCellSubdivisionFilter >
 void
-TriangleAreaCellSubdivisionCriterion< TMesh >::
-Compute( MeshType * mesh, CellIdContainer & cellIds )
+CellAreaTriangleCellSubdivisionCriterion< TTriangleCellSubdivisionFilter >
+::Compute( MeshType * mesh, SubdivisionCellContainer & cellIds )
 {
   cellIds.clear();
   const CellsContainer * cells = mesh->GetCells();
@@ -35,12 +35,13 @@ Compute( MeshType * mesh, CellIdContainer & cellIds )
     itkExceptionMacro( "<<Input mesh has not cells" );
     }
 
-  for( CellsContainerConstIterator cter = cells->Begin(); cter != cells->End(); ++cter )
+  CellsContainerConstIterator cter = cells->Begin();
+  while( cter != cells->End() )
     {
     CellType * cell = cter->Value();
-    if ( cell->GetType() != CellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
+    if ( !cell || cell->GetType() != CellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
       {
-      itkExceptionMacro(<<" The input contains non triangle cell");
+      continue;
       }
 
     PointType pointArray[3];
@@ -53,11 +54,14 @@ Compute( MeshType * mesh, CellIdContainer & cellIds )
       ++pter;
       ++nn;
       }
+
     CoordRepType area = TriangleHelper<PointType>::ComputeArea( pointArray[0], pointArray[1], pointArray[2] );
     if( area > m_MaximumArea )
       {
-      cellIds.push_back( cter->Index() );
+      cellIds.push_back( static_cast<typename SubdivisionCellContainer::value_type>( cter->Index() ) );
       }
+
+    ++cter;
     }
 }
 

@@ -16,28 +16,28 @@
  *
  *=========================================================================*/
 
-#ifndef __itkConditionalCellSubdivisionQuadEdgeMeshFilter_h
-#define __itkConditionalCellSubdivisionQuadEdgeMeshFilter_h
+#ifndef __itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter_h
+#define __itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
 #include "itkQuadEdgeMeshToQuadEdgeMeshFilter.h"
 
 namespace itk
 {
 /**
- * \class ConditionalCellSubdivisionQuadEdgeMeshFilter
+ * \class IterativeTriangleCellSubdivisionQuadEdgeMeshFilter
  *
  * \brief FIXME
  * \ingroup ITKQuadEdgeMeshFiltering
  */
-template< typename TInputMesh, typename TCellSubdivisionFilter, typename TCriterion >
-class ConditionalCellSubdivisionQuadEdgeMeshFilter:
+template< typename TInputMesh, typename TCellSubdivisionFilter >
+class IterativeTriangleCellSubdivisionQuadEdgeMeshFilter:
   public QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, typename TCellSubdivisionFilter::OutputMeshType >
 {
 public:
-  typedef ConditionalCellSubdivisionQuadEdgeMeshFilter                  Self;
+  typedef IterativeTriangleCellSubdivisionQuadEdgeMeshFilter                                             Self;
   typedef QuadEdgeMeshToQuadEdgeMeshFilter< TInputMesh, typename TCellSubdivisionFilter::OutputMeshType> Superclass;
-  typedef SmartPointer< Self >                                        Pointer;
-  typedef SmartPointer< const Self >                                  ConstPointer;
+  typedef SmartPointer< Self >                                                                           Pointer;
+  typedef SmartPointer< const Self >                                                                     ConstPointer;
 
   typedef TCellSubdivisionFilter                                                     CellSubdivisionFilterType;
   typedef typename CellSubdivisionFilterType::Pointer                                CellSubdivisionFilterPointer;
@@ -49,48 +49,46 @@ public:
   typedef typename OutputMeshType::Pointer                                           OutputMeshPointer;
 
   typedef typename CellSubdivisionFilterType::OutputCellIdentifier                   OutputCellIdentifier;
-  typedef typename CellSubdivisionFilterType::OutputCellIdentifierListType           OutputCellIdentifierListType;
-  typedef typename CellSubdivisionFilterType::OutputCellIdentifierListConstIterator  OutputCellIdentifierListConstIterator;
-
-  typedef TCriterion                                                                 CriterionType;
-  typedef typename CriterionType::Pointer                                            CriterionPointer;
+  typedef typename CellSubdivisionFilterType::SubdivisionCellContainer               SubdivisionCellContainer;
+  typedef typename CellSubdivisionFilterType::SubdivisionCellContainerConstIterator  SubdivisionCellContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(ConditionalCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter);
+  itkTypeMacro( IterativeTriangleCellSubdivisionQuadEdgeMeshFilter, QuadEdgeMeshToQuadEdgeMeshFilter );
   itkNewMacro(Self);
 
 #ifdef ITK_USE_CONCEPT_CHECKING
   itkConceptMacro( SameTypeCheck,
     ( Concept::SameType< typename CellSubdivisionFilterType::InputMeshType, typename CellSubdivisionFilterType::OutputMeshType > ) );
-  itkConceptMacro( SameTypeCheckMesh,
-    ( Concept::SameType< typename CellSubdivisionFilterType::OutputMeshType, typename CriterionType::MeshType > ) );
-  itkConceptMacro( SameTypeCheckContainer,
-    ( Concept::SameType< typename CellSubdivisionFilterType::OutputCellIdentifierListType, typename CriterionType::CellIdContainer > ) );
 #endif
 
-  itkSetObjectMacro(SubdivisionCriterion, CriterionType);
+  itkSetMacro( ResolutionLevels, unsigned int );
+  itkGetConstMacro( ResolutionLevels, unsigned int );
+  itkGetConstReferenceMacro( CellsToBeSubdivided, SubdivisionCellContainer );
+
+  void SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList );
+  void AddSubdividedCellId( OutputCellIdentifier cellId );
 
 protected:
-  ConditionalCellSubdivisionQuadEdgeMeshFilter();
+  IterativeTriangleCellSubdivisionQuadEdgeMeshFilter();
 
-  virtual ~ConditionalCellSubdivisionQuadEdgeMeshFilter() {}
+  virtual ~IterativeTriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
   virtual void GenerateData();
 
-  void PrintSelf(std::ostream & os, Indent indent) const;
+  void PrintSelf( std::ostream & os, Indent indent ) const;
 
-  CellSubdivisionFilterPointer  m_CellSubdivisionFilter;
-  OutputCellIdentifierListType  m_CellsToBeSubdivided;
-  CriterionPointer              m_SubdivisionCriterion;
+  CellSubdivisionFilterPointer    m_CellSubdivisionFilter;
+  SubdivisionCellContainer        m_CellsToBeSubdivided;
+  unsigned int                    m_ResolutionLevels;
 
 private:
-  ConditionalCellSubdivisionQuadEdgeMeshFilter(const Self &); // purposely not implemented
-  void operator=(const Self &);                // purposely not implemented
+  IterativeTriangleCellSubdivisionQuadEdgeMeshFilter( const Self & ); // purposely not implemented
+  void operator=( const Self & );                // purposely not implemented
 };
 } // end namespace itk
 
 #ifndef ITK_MANUAL_INSTANTIATION
-#include "itkConditionalCellSubdivisionQuadEdgeMeshFilter.hxx"
+#include "itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter.hxx"
 #endif
 
 #endif

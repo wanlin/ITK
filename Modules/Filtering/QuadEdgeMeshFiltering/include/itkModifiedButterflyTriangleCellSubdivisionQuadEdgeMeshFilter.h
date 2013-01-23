@@ -19,7 +19,7 @@
 #ifndef __itkModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter_h
 #define __itkModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
-#include "itkCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
@@ -31,13 +31,13 @@ namespace itk
  */
 template< typename TInputMesh, typename TOutputMesh >
 class ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter:
-  public CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+  public TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter           Self;
-  typedef CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >         Superclass;
-  typedef SmartPointer< Self >                                                 Pointer;
-  typedef SmartPointer< const Self >                                           ConstPointer;
+  typedef ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter              Self;
+  typedef TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >    Superclass;
+  typedef SmartPointer< Self >                                                    Pointer;
+  typedef SmartPointer< const Self >                                              ConstPointer;
 
   typedef typename Superclass::InputMeshType                 InputMeshType;
   typedef typename Superclass::InputMeshPointer              InputMeshPointer;
@@ -73,20 +73,20 @@ public:
   typedef typename Superclass::EdgePointIdentifierContainerConstIterator EdgePointIdentifierContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter, CellSubdivisionQuadEdgeMeshFilter);
+  itkTypeMacro( ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter, TriangleCellSubdivisionQuadEdgeMeshFilter );
 
   /** New macro for creation of through a Smart Pointer   */
-  itkNewMacro(Self);
+  itkNewMacro( Self );
 
 protected:
   ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter() {}
-  ~ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter() {}
+  virtual ~ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputCellType *cell );
+  virtual void AddNewCellPoints( InputCellType *cell );
 
 private:
-  ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter(const Self &);
-  void operator=(const Self &);
+  ModifiedButterflyTriangleCellSubdivisionQuadEdgeMeshFilter( const Self & );
+  void operator=( const Self & );
 };
 }
 #ifndef ITK_MANUAL_INSTANTIATION

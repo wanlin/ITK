@@ -16,24 +16,24 @@
  *
  *=========================================================================*/
 
-#ifndef __itkCellSubdivisionQuadEdgeMeshFilter_hxx
-#define __itkCellSubdivisionQuadEdgeMeshFilter_hxx
+#ifndef __itkTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
+#define __itkTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
 
-#include "itkCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
 template< typename TInputMesh, typename TOutputMesh >
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::CellSubdivisionQuadEdgeMeshFilter()
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::TriangleCellSubdivisionQuadEdgeMeshFilter()
 {
   this->m_Uniform = true;
 }
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::SetCellsToBeSubdivided(const OutputCellIdentifierListType & cellIdList)
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList )
 {
   this->m_CellsToBeSubdivided = cellIdList;
   this->Modified();
@@ -41,7 +41,16 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+::AddSubdividedCellId( OutputCellIdentifier cellId )
+{
+  this->m_CellsToBeSubdivided.push_back( cellId );
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TOutputMesh >
+void
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::GenerateOutputPoints()
 {
   this->CopyInputMeshToOutputMeshPoints();
@@ -57,18 +66,21 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     InputCellsContainerConstIterator cellIt = cells->Begin();
     while ( cellIt != cells->End() )
       {
-      this->AddNewPoints( cellIt->Value() );
+      this->AddNewCellPoints( cellIt->Value() );
       ++cellIt;
       }
     }
   else
     {
-    OutputCellIdentifierListConstIterator it  = this->m_CellsToBeSubdivided.begin();
-    OutputCellIdentifierListConstIterator end = this->m_CellsToBeSubdivided.end();
+    SubdivisionCellContainerConstIterator it  = this->m_CellsToBeSubdivided.begin();
+    SubdivisionCellContainerConstIterator end = this->m_CellsToBeSubdivided.end();
     while( it != end )
       {
       InputCellType* cell = cells->GetElement( static_cast<InputCellIdentifier>( *it ) );
-      this->AddNewPoints( cell );
+      if( cell )
+        {
+        this->AddNewCellPoints( cell );
+        }
       ++it;
       }
     }
@@ -76,7 +88,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::GenerateOutputCells()
 {
   InputMeshConstPointer input  = this->GetInput();
@@ -92,7 +104,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     {
     InputCellType* cell = cellIt->Value();
 
-    if ( cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
+    if ( !cell || cell->GetType() != InputCellType::POLYGON_CELL || cell->GetNumberOfPoints() != 3 )
       {
       continue;
       }
@@ -154,7 +166,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::SplitTriangleFromOneEdge( OutputMeshType * output,
   const OutputPointIdentifier * trianglePointIds,
   const OutputPointIdentifier * edgePointIds,
@@ -170,7 +182,7 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::SplitTriangleFromTwoEdges( OutputMeshType * output,
   const OutputPointIdentifier * trianglePointIds,
   const OutputPointIdentifier * edgePointIds,
@@ -204,10 +216,10 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::SplitTriangleFromThreeEdges( OutputMeshType * output,
   const OutputPointIdentifier * trianglePointIds,
-  const OutputPointIdentifier * edgePointIds)
+  const OutputPointIdentifier * edgePointIds )
 {
   // this face was not supposed to be subdivided but all neighbors are
   if( this->m_Uniform )
@@ -219,19 +231,27 @@ CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     }
   else
     {
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] )->GetLeft() );
-    this->m_CellsToBeSubdivided.push_back( output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] )->GetLeft() );
+    OutputQEType * newTriangleEdge = output->AddFaceTriangle( trianglePointIds[0], edgePointIds[0], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[0], trianglePointIds[1], edgePointIds[1] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[1], trianglePointIds[2], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
+
+    newTriangleEdge = output->AddFaceTriangle( edgePointIds[0], edgePointIds[1], edgePointIds[2] );
+    this->m_CellsToBeSubdivided.push_back( newTriangleEdge->GetLeft() );
     }
 }
 
 template< typename TInputMesh, typename TOutputMesh >
 void
-CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );
+  os << indent << "Is Uniform Subdivision: " << m_Uniform << std::endl;
 }
 }
 #endif

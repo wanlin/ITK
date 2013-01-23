@@ -19,13 +19,15 @@
 #define __itkLoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter_hxx
 
 #include "itkLoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter.h"
+#include "vnl/vnl_math.h"
+#include <algorithm>
 
 namespace itk
 {
 template< typename TInputMesh, typename TOutputMesh >
 void
 LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
-::AddNewPoints( InputQEType * edge )
+::AddNewEdgePoints( InputQEType * edge )
 {
   const InputMeshType * input = this->GetInput();
   OutputMeshType * output = this->GetOutput();
@@ -59,7 +61,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       pointArray[3].Fill( NumericTraits< typename InputPointType::ValueType >::Zero );
       }
 
-    for ( unsigned int kk = 0; kk < 3; kk++ )
+    for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; kk++ )
       {
       for ( unsigned int mm = 0; mm < 4; mm++ )
         {
@@ -112,9 +114,10 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
   const InputPointsContainer * points = input->GetPoints();
   output->GetPoints()->Reserve( input->GetNumberOfPoints() );
 
-  for ( InputPointsContainerConstIterator ptIt = points->Begin(); ptIt != points->End(); ++ptIt )
+  InputPointsContainerConstIterator ptIt = points->Begin();
+  while( ptIt != points->End() )
     {
-    InputQEType *edge = input->FindEdge( ptIt->Index() );
+    InputQEType *edge = ptIt->Value().GetEdge();
     InputQEType *qter0 = edge;
     InputQEType *qter1 = edge->GetOnext();
 
@@ -143,6 +146,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
       {
       this->AverageOriginOfEdge( edge, points );
       }
+    ++ptIt;
     }
 }
 
@@ -178,7 +182,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 
   if ( nb )
     {
-    for ( unsigned int kk = 0; kk < 3; ++kk )
+    for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
       {
       opt[kk] = 0.75 * ipt[kk] + 0.125 * bpt[kk];
       }
@@ -187,7 +191,7 @@ LoopTriangleEdgeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
     {
     InputCoordType var  = 0.375 + 0.25 * vcl_cos(2.0 * vnl_math::pi / nn);
     InputCoordType beta = ( 0.625 - var * var ) / nn;
-    for ( unsigned int kk = 0; kk < 3; ++kk )
+    for ( unsigned int kk = 0; kk < InputMeshType::PointDimension; ++kk )
       {
       opt[kk] = ( 1.0 - nn * beta ) * ipt[kk] + beta * opt[kk];
       }

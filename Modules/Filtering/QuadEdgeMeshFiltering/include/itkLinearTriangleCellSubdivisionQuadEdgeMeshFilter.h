@@ -19,7 +19,7 @@
 #ifndef __itkLinearTriangleCellSubdivisionQuadEdgeMeshFilter_h
 #define __itkLinearTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
-#include "itkCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
@@ -31,13 +31,13 @@ namespace itk
  */
 template< typename TInputMesh, typename TOutputMesh >
 class LinearTriangleCellSubdivisionQuadEdgeMeshFilter:
-  public CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+  public TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef LinearTriangleCellSubdivisionQuadEdgeMeshFilter                      Self;
-  typedef CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >         Superclass;
-  typedef SmartPointer< Self >                                                 Pointer;
-  typedef SmartPointer< const Self >                                           ConstPointer;
+  typedef LinearTriangleCellSubdivisionQuadEdgeMeshFilter                       Self;
+  typedef TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >  Superclass;
+  typedef SmartPointer< Self >                                                  Pointer;
+  typedef SmartPointer< const Self >                                            ConstPointer;
 
   typedef typename Superclass::InputMeshType                 InputMeshType;
   typedef typename Superclass::InputMeshPointer              InputMeshPointer;
@@ -73,21 +73,21 @@ public:
   typedef typename Superclass::EdgePointIdentifierContainerConstIterator EdgePointIdentifierContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(LinearTriangleCellSubdivisionQuadEdgeMeshFilter,
-               CellSubdivisionQuadEdgeMeshFilter);
+  itkTypeMacro( LinearTriangleCellSubdivisionQuadEdgeMeshFilter,
+               TriangleCellSubdivisionQuadEdgeMeshFilter );
 
   /** New macro for creation of through a Smart Pointer   */
-  itkNewMacro(Self);
+  itkNewMacro( Self );
 
 protected:
   LinearTriangleCellSubdivisionQuadEdgeMeshFilter() {}
-  ~LinearTriangleCellSubdivisionQuadEdgeMeshFilter() {}
+  virtual ~LinearTriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
-  virtual void AddNewPoints( InputCellType * cell );
+  virtual void AddNewCellPoints( InputCellType * cell );
 
 private:
-  LinearTriangleCellSubdivisionQuadEdgeMeshFilter(const Self &);
-  void operator=(const Self &);
+  LinearTriangleCellSubdivisionQuadEdgeMeshFilter( const Self & );
+  void operator=( const Self & );
 };
 }
 

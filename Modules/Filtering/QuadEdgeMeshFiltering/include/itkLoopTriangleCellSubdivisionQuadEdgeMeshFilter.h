@@ -19,7 +19,7 @@
 #ifndef __itkLoopTriangleCellSubdivisionQuadEdgeMeshFilter_h
 #define __itkLoopTriangleCellSubdivisionQuadEdgeMeshFilter_h
 
-#include "itkCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
@@ -31,13 +31,13 @@ namespace itk
  */
 template< typename TInputMesh, typename TOutputMesh >
 class LoopTriangleCellSubdivisionQuadEdgeMeshFilter:
-  public CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
+  public TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >
 {
 public:
-  typedef LoopTriangleCellSubdivisionQuadEdgeMeshFilter                        Self;
-  typedef CellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >         Superclass;
-  typedef SmartPointer< Self >                                                 Pointer;
-  typedef SmartPointer< const Self >                                           ConstPointer;
+  typedef LoopTriangleCellSubdivisionQuadEdgeMeshFilter                           Self;
+  typedef TriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TOutputMesh >    Superclass;
+  typedef SmartPointer< Self >                                                    Pointer;
+  typedef SmartPointer< const Self >                                              ConstPointer;
 
   typedef typename Superclass::InputMeshType                        InputMeshType;
   typedef typename Superclass::InputMeshPointer                     InputMeshPointer;
@@ -73,24 +73,26 @@ public:
   typedef typename Superclass::OutputQEType                         OutputQEType;
   typedef typename Superclass::OutputMeshTraits                     OutputMeshTraits;
   typedef typename Superclass::OutputPointIdIterator                OutputPointIdIterator;
-  typedef typename Superclass::OutputCellIdentifierListConstIterator     OutputCellIdentifierListConstIterator;
+  typedef typename Superclass::SubdivisionCellContainerConstIterator SubdivisionCellContainerConstIterator;
 
   typedef typename Superclass::EdgePointIdentifierContainer              EdgePointIdentifierContainer;
   typedef typename Superclass::EdgePointIdentifierContainerPointer       EdgePointIdentifierContainerPointer;
   typedef typename Superclass::EdgePointIdentifierContainerConstIterator EdgePointIdentifierContainerConstIterator;
 
   /** Run-time type information (and related methods).   */
-  itkTypeMacro(LoopTriangleCellSubdivisionQuadEdgeMeshFilter, CellSubdivisionQuadEdgeMeshFilter);
+  itkTypeMacro( LoopTriangleCellSubdivisionQuadEdgeMeshFilter, TriangleCellSubdivisionQuadEdgeMeshFilter );
 
   /** New macro for creation of through a Smart Pointer   */
-  itkNewMacro(Self);
+  itkNewMacro( Self );
 protected:
   LoopTriangleCellSubdivisionQuadEdgeMeshFilter() {}
-  ~LoopTriangleCellSubdivisionQuadEdgeMeshFilter() {}
+  virtual ~LoopTriangleCellSubdivisionQuadEdgeMeshFilter() {}
 
   virtual void CopyInputMeshToOutputMeshPoints();
 
-  virtual void AddNewPoints( InputCellType *cell );
+  virtual void AddNewCellPoints( InputCellType *cell );
+
+  InputPointType SmoothingPoint( const InputPointType & ipt, const InputPointsContainer * points );
 
 private:
   LoopTriangleCellSubdivisionQuadEdgeMeshFilter(const Self &);

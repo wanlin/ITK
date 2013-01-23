@@ -16,43 +16,61 @@
  *
  *=========================================================================*/
 
-#ifndef __itkIterativeCellSubdivisionQuadEdgeMeshFilter_hxx
-#define __itkIterativeCellSubdivisionQuadEdgeMeshFilter_hxx
+#ifndef __itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
+#define __itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter_hxx
 
-#include "itkIterativeCellSubdivisionQuadEdgeMeshFilter.h"
+#include "itkIterativeTriangleCellSubdivisionQuadEdgeMeshFilter.h"
 
 namespace itk
 {
 template< typename TInputMesh, typename TCellSubdivisionFilter >
-IterativeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
-::IterativeCellSubdivisionQuadEdgeMeshFilter()
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+::IterativeTriangleCellSubdivisionQuadEdgeMeshFilter()
 {
-  m_CellSubdivisionFilter = CellSubdivisionFilterType::New();
-  m_ResolutionLevels = 1;
+  this->m_CellSubdivisionFilter = CellSubdivisionFilterType::New();
+  this->m_ResolutionLevels = 1;
 }
 
 template< typename TInputMesh, typename TCellSubdivisionFilter >
 void
-IterativeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+::SetCellsToBeSubdivided( const SubdivisionCellContainer & cellIdList )
+{
+  this->m_CellSubdivisionFilter->SetCellsToBeSubdivided( cellIdList );
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TCellSubdivisionFilter >
+void
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+::AddSubdividedCellId( OutputCellIdentifier cellId )
+{
+  this->m_CellsToBeSubdivided.push_back( cellId );
+  this->Modified();
+}
+
+template< typename TInputMesh, typename TCellSubdivisionFilter >
+void
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
 ::GenerateData()
 {
   this->CopyInputMeshToOutputMeshGeometry();
 
-  this->m_CellSubdivisionFilter->SetCellsToBeSubdivided( this->m_CellsToBeSubdivided );
-  while ( m_ResolutionLevels != 0 )
+  unsigned int  resolution = this->m_ResolutionLevels;
+  while ( resolution != 0 )
     {
     this->m_CellSubdivisionFilter->SetInput( this->GetOutput() );
     this->m_CellSubdivisionFilter->Update();
     OutputMeshPointer mesh = this->m_CellSubdivisionFilter->GetOutput();
     mesh->DisconnectPipeline();
     this->GraftOutput( mesh );
-    --m_ResolutionLevels;
+    --resolution;
     }
 }
 
 template< typename TInputMesh, typename TCellSubdivisionFilter >
 void
-IterativeCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
+IterativeTriangleCellSubdivisionQuadEdgeMeshFilter< TInputMesh, TCellSubdivisionFilter >
 ::PrintSelf( std::ostream & os, Indent indent ) const
 {
   Superclass::PrintSelf( os, indent );
